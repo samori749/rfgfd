@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КиберБитва: Онлайн Викторина (Информатика 7 класс)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            touch-action: manipulation;
+        }
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+        }
+        .neon-border {
+            box-shadow: 0 0 18px rgba(99, 102, 241, 0.35);
+        }
+        .neon-glow-green {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        }
+        .neon-glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        .card-glass {
+            background: rgba(30, 41, 59, 0.90);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-4 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="w-full max-w-5xl flex justify-between items-center py-3 px-2 border-b border-slate-800">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-pixel text-lg sm:text-xl text-yellow-300 shadow-lg">
+                &lt;&gt;
+            </div>
+            <div>
+                <h1 class="font-pixel text-xs sm:text-base text-indigo-400 tracking-wider">КИБЕРБИТВА</h1>
+                <p class="text-[10px] sm:text-xs text-slate-400">Онлайн-турнир • Информатика 7 класс</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="soundToggle" onclick="toggleSound()" class="px-3 py-1.5 rounded-lg card-glass text-xs text-slate-300 hover:bg-slate-700 transition flex items-center gap-1">
+                <span id="soundIcon">🔊</span> <span class="hidden sm:inline">Звук</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-5xl my-auto py-4 sm:py-6">
+
+        <!-- SCREEN 1: ROLE SELECTION -->
+        <section id="roleSelectScreen" class="card-glass rounded-2xl p-5 sm:p-8 neon-border transition-all max-w-2xl mx-auto text-center">
+            <div class="mb-6">
+                <span class="inline-block px-3 py-1 bg-indigo-950 text-indigo-300 border border-indigo-500/30 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                    Подключение по сети / Wi-Fi
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Добро пожаловать в КиберБитву!</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Интерактивная викторина из 45 вопросов. Подключайтесь с любых смартфонов или компьютеров.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
+                <!-- Host Option -->
+                <button onclick="showHostSetup()" class="p-5 rounded-2xl bg-gradient-to-br from-indigo-900/60 to-slate-800 border border-indigo-500/40 hover:border-indigo-400 hover:scale-[1.02] active:scale-98 transition flex flex-col items-center text-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center text-2xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition">
+                        👨‍🏫
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-1">Создать комнату</h3>
+                    <p class="text-xs text-slate-400">Для учителя / ведущего. Вы получаете код комнаты и управляете ходом игры.</p>
+                </button>
+
+                <!-- Player Option -->
+                <button onclick="showPlayerJoin()" class="p-5 rounded-2xl bg-gradient-to-br from-emerald-900/60 to-slate-800 border border-emerald-500/40 hover:border-emerald-400 hover:scale-[1.02] active:scale-98 transition flex flex-col items-center text-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center text-2xl mb-3 group-hover:bg-emerald-600 group-hover:text-white transition">
+                        🎮
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-1">Войти по коду</h3>
+                    <p class="text-xs text-slate-400">Для учеников. Введите код комнаты с экрана ведущего и свое имя.</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: HOST SETUP & LOBBY -->
+        <section id="hostLobbyScreen" class="hidden card-glass rounded-2xl p-5 sm:p-8 neon-border max-w-3xl mx-auto">
+            <div class="text-center mb-6">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Панель ведущего</span>
+                <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">Комната создана!</h2>
+            </div>
+
+            <!-- Code Display Card -->
+            <div class="bg-indigo-950/80 border border-indigo-500/50 rounded-2xl p-6 text-center my-4 neon-border">
+                <p class="text-xs text-indigo-300 uppercase tracking-widest font-semibold mb-2">Код для подключения учеников:</p>
+                <div id="hostRoomCodeDisplay" class="font-pixel text-4xl sm:text-6xl text-yellow-400 tracking-wider my-2 selection:bg-yellow-400 selection:text-slate-900">
+                    ------
+                </div>
+                <p class="text-xs text-slate-400 mt-2">Ученики должны зайти в приложение со своих телефонов и ввести этот код</p>
+            </div>
+
+            <!-- Connected Players Count & List -->
+            <div class="my-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-slate-200">Подключившиеся игроки (<span id="hostPlayerCount">0</span>):</h3>
+                    <span class="text-xs text-indigo-400 animate-pulse">● Ожидание игроков...</span>
+                </div>
+                <div id="hostPlayerList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto custom-scrollbar p-1">
+                    <div class="col-span-full text-center py-6 text-slate-500 text-xs italic">
+                        Никто еще не подключился. Назовите ученикам код!
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="startHostGame()" id="startGameBtn" disabled class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white font-bold text-base transition shadow-lg shadow-emerald-600/30">
+                    🚀 Начать турнир (45 вопросов)
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: PLAYER JOIN FORM & LOBBY -->
+        <section id="playerJoinScreen" class="hidden card-glass rounded-2xl p-5 sm:p-8 neon-border max-w-md mx-auto">
+            <div class="text-center mb-6">
+                <h2 class="text-xl sm:text-2xl font-bold text-white mb-1">Присоединиться к игре</h2>
+                <p class="text-xs text-slate-400">Введите данные с экрана учителя</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Код комнаты (6 цифр):</label>
+                    <input type="text" id="joinCodeInput" maxlength="6" placeholder="например, 582910" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center font-pixel text-xl sm:text-2xl text-yellow-400 tracking-widest outline-none focus:border-indigo-500 uppercase">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Ваше Имя / Фамилия:</label>
+                    <input type="text" id="joinNameInput" maxlength="20" placeholder="Алексей К." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <button onclick="submitPlayerJoin()" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-base transition shadow-lg active:scale-95">
+                🎮 Вход в комнату
+            </button>
+
+            <button onclick="showRoleSelect()" class="w-full mt-3 py-2 text-xs text-slate-400 hover:text-slate-200">
+                ← Назад к выбору роли
+            </button>
+        </section>
+
+        <!-- PLAYER LOBBY WAITING SCREEN -->
+        <section id="playerWaitingScreen" class="hidden card-glass rounded-2xl p-8 text-center neon-border max-w-md mx-auto">
+            <div class="w-16 h-16 rounded-full bg-indigo-600/30 text-indigo-400 border border-indigo-500/50 flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+                ⏳
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">Вы в комнате!</h2>
+            <p id="playerGreetingText" class="text-sm text-indigo-300 font-semibold mb-4">Игрок: ...</p>
+            <div class="bg-slate-900/80 rounded-xl p-4 border border-slate-800 text-xs text-slate-400">
+                Ожидаем, когда ведущий запустит викторину... Игра скоро начнется!
+            </div>
+        </section>
+
+        <!-- SCREEN 4: HOST GAME DASHBOARD (Teacher View) -->
+        <section id="hostGameScreen" class="hidden flex-col gap-4">
+            <div class="card-glass rounded-xl p-4 flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block">Экран ведущего</span>
+                    <span id="hostGameCodeBadge" class="font-pixel text-xs text-yellow-400">Код: ------</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="hostAnsweredCounter" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-emerald-400 font-semibold">
+                        Ответили: 0 из 0
+                    </span>
+                    <button onclick="hostNextQuestion()" id="hostNextBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow">
+                        Следующий вопрос ➔
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-glass rounded-2xl p-4 sm:p-6 neon-border">
+                <div class="flex justify-between items-center text-xs font-mono text-indigo-400 font-bold mb-2">
+                    <span id="hostQuestionNum">ВОПРОС 1 / 45</span>
+                    <span id="hostTimerText" class="text-slate-300">⏱ 20 сек</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full mb-4 overflow-hidden">
+                    <div id="hostTimerBar" class="bg-indigo-500 h-full w-full transition-all duration-1000 linear"></div>
+                </div>
+
+                <h2 id="hostQuestionText" class="text-base sm:text-xl font-bold text-white mb-4">
+                    Загрузка вопроса...
+                </h2>
+
+                <div id="hostAnswerOptionsDisplay" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 mb-4">
+                    <!-- Dynamic option display -->
+                </div>
+            </div>
+
+            <!-- Live Leaderboard for Host Screen -->
+            <div class="card-glass rounded-2xl p-4 border border-slate-800">
+                <h3 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-3">📊 Живой рейтинг участников:</h3>
+                <div id="hostLiveLeaderboard" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto custom-scrollbar">
+                    <!-- Dynamic Live Rankings -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: PLAYER GAMEPLAY (Student View) -->
+        <section id="playerGameScreen" class="hidden flex-col gap-4">
+            
+            <div class="card-glass rounded-xl p-3 flex justify-between items-center text-xs">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                    <span id="playerSelfName" class="font-bold text-indigo-300">Игрок</span>
+                </div>
+                <div class="font-pixel text-yellow-400" id="playerSelfScore">0 оч.</div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card-glass rounded-2xl p-4 sm:p-6 neon-border relative">
+                <div class="flex justify-between items-center text-xs font-mono text-indigo-400 font-bold mb-2">
+                    <span id="playerQuestionNum">ВОПРОС 1 / 45</span>
+                    <span id="playerTimerText" class="text-slate-300">⏱ 20 сек</span>
+                </div>
+                
+                <div class="w-full bg-slate-800 h-2 rounded-full mb-4 overflow-hidden">
+                    <div id="playerTimerBar" class="bg-indigo-500 h-full w-full transition-all duration-1000 linear"></div>
+                </div>
+
+                <h2 id="playerQuestionText" class="text-base sm:text-lg font-bold text-white mb-5 leading-relaxed">
+                    Загрузка вопроса...
+                </h2>
+
+                <!-- Answer buttons for touch mobile -->
+                <div id="playerAnswersGrid" class="grid grid-cols-1 gap-3">
+                    <!-- Option buttons -->
+                </div>
+            </div>
+
+            <!-- Player Response Feedback Banner -->
+            <div id="playerFeedbackBox" class="hidden card-glass rounded-xl p-4 text-center border-l-4">
+                <div id="playerFeedbackTitle" class="font-bold text-sm mb-1"></div>
+                <div id="playerFeedbackDesc" class="text-xs text-slate-300"></div>
+            </div>
+        </section>
+
+        <!-- SCREEN 6: RESULTS & PODIUM -->
+        <section id="resultsScreen" class="hidden card-glass rounded-2xl p-6 sm:p-8 text-center neon-border max-w-2xl mx-auto">
+            <div class="text-4xl sm:text-5xl mb-2">🏆</div>
+            <h2 class="font-pixel text-base sm:text-xl text-yellow-400 mb-1">ТУРНИР ЗАВЕРШЕН!</h2>
+            <p class="text-xs text-slate-400 mb-4">Победитель соревнования:</p>
+            <div id="winnerName" class="text-2xl sm:text-3xl font-bold text-white mb-6 text-indigo-300">Игрок 1</div>
+
+            <div class="bg-slate-900/80 rounded-xl p-4 border border-slate-800 mb-6">
+                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Итоговые результаты:</h3>
+                <div id="leaderboardList" class="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto custom-scrollbar text-left">
+                    <!-- Final scores -->
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+                🔄 Выйти в меню
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl text-center py-3 text-[11px] text-slate-500 border-t border-slate-800/60">
+        Учебный тренажер по информатике • 7 класс • Сетевой режим для групп
+    </footer>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global state references
+        window.db = null;
+        window.auth = null;
+        window.currentUser = null;
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'cyber-quiz-7kl';
+
+        // Initialize Firebase
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "dummy-key",
+            authDomain: "dummy.firebaseapp.com",
+            projectId: "dummy-project",
+            storageBucket: "dummy.appspot.com",
+            messagingSenderId: "00000000",
+            appId: "1:00000000:web:00000000"
+        };
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.db = getFirestore(app);
+            window.auth = getAuth(app);
+
+            // Authenticate user
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const userCred = await signInWithCustomToken(window.auth, __initial_auth_token);
+                    window.currentUser = userCred.user;
+                } else {
+                    const userCred = await signInAnonymously(window.auth);
+                    window.currentUser = userCred.user;
+                }
+            };
+            initAuth().catch(err => console.error("Auth init warning:", err));
+        } catch (e) {
+            console.warn("Firebase initialized in standard or fallback mode:", e);
+        }
+
+        // Expose Firebase functions globally for UI handlers
+        window.fsDoc = doc;
+        window.fsSetDoc = setDoc;
+        window.fsUpdateDoc = updateDoc;
+        window.fsOnSnapshot = onSnapshot;
+        window.fsCollection = collection;
+    </script>
+
+    <script>
+        // --- QUESTION DATABASE (50 Grade 7 CS Questions) ---
+        const questionBank = [
+            { q: "Сколько бит содержится в 4 байтах?", options: ["16 бит", "32 бита", "64 бита", "24 бита"], correct: 1, explanation: "1 байт = 8 бит. 4 * 8 = 32 бита." },
+            { q: "Какое десятичное число соответствует двоичному 1010₂?", options: ["8", "10", "12", "14"], correct: 1, explanation: "1010₂ = 8 + 0 + 2 + 0 = 10." },
+            { q: "Какая маска соответствует файлам с расширением .jpg из ровно 3 символов в имени?", options: ["*.jpg", "???.jpg", "???.*", "*??.jpg"], correct: 1, explanation: "Символ '?' заменяет ровно 1 символ. '???' = 3 символа." },
+            { q: "В кодировке Unicode на символ отводится 16 бит. Объем слова «ИНФОРМАТИКА»:", options: ["11 байт", "22 байта", "88 бит", "176 байт"], correct: 1, explanation: "11 букв * 2 байта (16 бит) = 22 байта." },
+            { q: "Какое из устройств относится исключительно к устройствам ВВОДА информации?", options: ["Монитор", "Сканер", "Принтер", "Графопостроитель"], correct: 1, explanation: "Сканер считывает изображение и вводит его в ПК." },
+            { q: "Сколько Килобайт содержится в 2 Мегабайтах?", options: ["2000 Кб", "2048 Кб", "1024 Кб", "512 Кб"], correct: 1, explanation: "1 Мб = 1024 Кб. 2 Мб = 2048 Кб." },
+            { q: "Корректный путь к файлу в операционной системе Windows:", options: ["C:/Docs/test.txt", "C:\\Документы\\Школа\\отчет.docx", "http://site.ru/test.txt", "C:|Files|test.txt"], correct: 1, explanation: "Разделителем папок в Windows является обратный слэш '\\'." },
+            { q: "Какой символ в маске заменяет любую последовательность символов?", options: ["?", "%", "*", "#"], correct: 2, explanation: "'*' заменяет любую цепочку символов." },
+            { q: "Устройство ПК, выполняющее вычисления и обработку информации:", options: ["Оперативная память", "Жесткий диск", "Процессор", "Материнская плата"], correct: 2, explanation: "Центральный процессор (ЦПУ) — главное вычислительное устройство." },
+            { q: "Какое число НЕ может быть октетом в IP-адресе IPv4?", options: ["0", "192", "255", "280"], correct: 3, explanation: "Каждое число в IP-адресе лежит в пределах от 0 до 255." },
+            { q: "Для цвета пикселя используется 3 бита. Сколько всего цветов в палитре?", options: ["3", "6", "8", "16"], correct: 2, explanation: "N = 2³ = 8 цветов." },
+            { q: "Алгоритм, команды которого выполняются строго последовательно:", options: ["Циклический", "Разветвляющийся", "Линейный", "Вспомогательный"], correct: 2, explanation: "Линейный алгоритм выполняется шагами один за другим." },
+            { q: "Сколько байт в 1 Килобайте?", options: ["1000 байт", "1024 байта", "512 байт", "8192 байта"], correct: 1, explanation: "1 Кб = 1024 байта." },
+            { q: "Переведите двоичное число 111₂ в десятичную систему:", options: ["5", "6", "7", "8"], correct: 2, explanation: "111₂ = 4 + 2 + 1 = 7." },
+            { q: "Какое расширение обычно имеют исполняемые программы в ОС Windows?", options: [".txt", ".exe", ".docx", ".png"], correct: 1, explanation: "Расширение .exe обозначает исполняемый файл." },
+            { q: "Оперативная память (ОЗУ) компьютера является:", options: ["Энергонезависимой", "Энергозависимой", "Оптической", "Магнитной"], correct: 1, explanation: "При выключении питания данные из ОЗУ стираются." },
+            { q: "В кодировке ASCII символ занимает 1 байт. Объем фразы «Отлично!» (8 символов):", options: ["8 бит", "8 байт", "16 байт", "64 байта"], correct: 1, explanation: "8 символов * 1 байт = 8 байт." },
+            { q: "Какое устройство вывода создает бумажную копию документа?", options: ["Сканер", "Принтер", "Клавиатура", "Модем"], correct: 1, explanation: "Принтер выводит информацию на бумагу." },
+            { q: "Минимальная единица измерения количества информации:", options: ["Байт", "Бит", "Бод", "Пиксель"], correct: 1, explanation: "Бит — наименьшая единица информации." },
+            { q: "Графический редактор Paint создает изображения какого типа?", options: ["Векторные", "Растровые", "Фрактальные", "3D-модели"], correct: 1, explanation: "Paint — растровый редактор." },
+            { q: "Растровое изображение состоит из точек, называемых:", options: ["Векторами", "Пикселями", "Узлами", "Сайтами"], correct: 1, explanation: "Пиксель — элементарная точка растрового изображения." },
+            { q: "Какая маска отберет файлы на 'k' с расширением .txt?", options: ["k*.txt", "k?.txt", "*k.txt", "k*.*"], correct: 0, explanation: "'k*.txt' = начинается на 'k', далее любые символы, расширение .txt." },
+            { q: "Десятичное число 12 в двоичной системе счисления:", options: ["1010₂", "1100₂", "1110₂", "1001₂"], correct: 1, explanation: "12 = 8 + 4 = 1100₂." },
+            { q: "Для хранения информации при выключенном ПК используется:", options: ["Процессор", "ОЗУ", "Жесткий диск / SSD", "Кэш"], correct: 2, explanation: "HDD/SSD хранят файлы долговременно." },
+            { q: "Сетевой протокол передачи веб-страниц:", options: ["FTP", "HTTP", "SMTP", "IP"], correct: 1, explanation: "HTTP передает веб-страницы в браузере." },
+            { q: "Наименьший элемент изображения на экране монитора:", options: ["Зерно", "Пиксель", "Сантиметр", "Символ"], correct: 1, explanation: "Экран состояит из сетки пикселей." },
+            { q: "Сколько бит в полубайте (4 бита)?", options: ["2 бита", "4 бита", "8 бит", "16 бит"], correct: 1, explanation: "Полубайт содержит 4 бита." },
+            { q: "Расширение векторных графических файлов:", options: [".bmp", ".svg", ".jpg", ".png"], correct: 1, explanation: "SVG — формат векторной графики." },
+            { q: "Структура хранения файлов в современных ОС:", options: ["Линейная", "Табличная", "Иерархическая (дерево)", "Сетевая"], correct: 2, explanation: "Файлы хранятся в древовидной иерархии папок." },
+            { q: "Устройство, соединяющее локальную сеть с Интернетом:", options: ["Монитор", "Роутер (маршрутизатор)", "Звуковая карта", "Сканер"], correct: 1, explanation: "Маршрутизатор направляет сетевые пакеты." },
+            { q: "Векторное изображение при увеличении масштаба:", options: ["Теряет качество", "Не теряет качества", "Темнеет", "Превращается в текст"], correct: 1, explanation: "Векторная графика сохраняет четкость при любом масштабе." },
+            { q: "Примером циклического алгоритма является:", options: ["Переход дороги по светофору", "Чистка зубов каждое утро", "Вычисление суммы чисел", "Написание имени"], correct: 1, explanation: "Повторяющиеся регулярные действия образуют цикл." },
+            { q: "Сочетание клавиш отмены последнего действия:", options: ["Ctrl + C", "Ctrl + Z", "Ctrl + V", "Ctrl + A"], correct: 1, explanation: "Ctrl+Z отменяет последнее действие." },
+            { q: "Сколько символов можно закодировать 8 битами?", options: ["128", "256", "512", "1024"], correct: 1, explanation: "2⁸ = 256 символов." },
+            { q: "Устройство ввода звуковой информации в ПК:", options: ["Колонки", "Микрофон", "Наушники", "Звуковая плата"], correct: 1, explanation: "Микрофон вводит звук." },
+            { q: "Программа для просмотра веб-страниц:", options: ["Провайдер", "Браузер", "Поисковик", "Текстовый редактор"], correct: 1, explanation: "Браузер отображает веб-сайты." },
+            { q: "Файл «text.docx.txt» имеет расширение:", options: [".docx", ".txt", ".docx.txt", "text"], correct: 1, explanation: "Расширение определяется по последней точке — .txt." },
+            { q: "Какое из этих двоичных чисел наибольшее?", options: ["1010₂", "1100₂", "1011₂", "1001₂"], correct: 1, explanation: "1100₂ = 12 в десятичной системе." },
+            { q: "Где хранится базовая система ввода-вывода (BIOS)?", options: ["В ОЗУ", "В ПЗУ (ROM)", "На флешке", "В процессоре"], correct: 1, explanation: "ПЗУ хранит прошивку платы." },
+            { q: "Комбинация клавиш Ctrl + C служит для:", options: ["Вырезать", "Вставить", "Копировать", "Сохранить"], correct: 2, explanation: "Ctrl + C копирует выделение." },
+            { q: "Национальный домен верхнего уровня России:", options: [".us", ".ru", ".de", ".cn"], correct: 1, explanation: "Домен .ru закреплен за РФ." },
+            { q: "Какая из программ является антивирусной?", options: ["WinRAR", "Kaspersky", "Photoshop", "Excel"], correct: 1, explanation: "Kaspersky — антивирусное ПО." },
+            { q: "Объем текста 512 байт в битах равен:", options: ["2048 бит", "4096 бит", "1024 бит", "5120 бит"], correct: 1, explanation: "512 * 8 = 4096 бит." },
+            { q: "Глубина цвета 8 бит позволяет кодировать:", options: ["16 цветов", "64 цвета", "256 цветов", "65536 цветов"], correct: 2, explanation: "2⁸ = 256 цветов." },
+            { q: "Что из этого НЕ является внешним накопителем?", options: ["USB-флешка", "Внешний SSD", "Оперативная память", "Карта памяти SD"], correct: 2, explanation: "ОЗУ расположена внутри компьютера." },
+            { q: "Табличный процессор для работы со электронными таблицами:", options: ["MS Word", "MS Excel", "MS PowerPoint", "Paint"], correct: 1, explanation: "MS Excel предназначена для табличных расчетов." },
+            { q: "Логическое выражение истинно при X = 5:", options: ["(X > 10) ИЛИ (X < 7)", "(X > 5) И (X < 10)", "(X == 6)", "НЕ(X < 10)"], correct: 0, explanation: "(5 < 7) — истина. Для ИЛИ достаточно одного истинного условия." },
+            { q: "Сколько байт в 0.5 Килобайта?", options: ["500 байт", "512 байт", "256 байт", "100 байт"], correct: 1, explanation: "1024 / 2 = 512 байт." },
+            { q: "Вредоносная программа, маскирующаяся под полезный софт:", options: ["Червь", "Троян", "Спам", "Брандмауэр"], correct: 1, explanation: "Троян маскируется под легитимные программы." },
+            { q: "В модели RGB основные цвета — это:", options: ["Красный, Зеленый, Синий", "Красный, Желтый, Синий", "Голубой, Пурпурный, Желтый", "Черный, Белый, Серый"], correct: 0, explanation: "RGB = Red, Green, Blue." }
+        ];
+
+        // --- GAME STATE VARIABLES ---
+        let userRole = null; // 'host' | 'player'
+        let currentRoomCode = null;
+        let myPlayerId = null;
+        let myPlayerName = '';
+        let roomUnsubscribe = null;
+        let soundEnabled = true;
+        let localTimer = null;
+        let timeLeft = 20;
+
+        // Sound Engine
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.04);
+                } else if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.22);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function hideAllScreens() {
+            document.getElementById('roleSelectScreen').classList.add('hidden');
+            document.getElementById('hostLobbyScreen').classList.add('hidden');
+            document.getElementById('playerJoinScreen').classList.add('hidden');
+            document.getElementById('playerWaitingScreen').classList.add('hidden');
+            document.getElementById('hostGameScreen').classList.add('hidden');
+            document.getElementById('hostGameScreen').classList.remove('flex');
+            document.getElementById('playerGameScreen').classList.add('hidden');
+            document.getElementById('playerGameScreen').classList.remove('flex');
+            document.getElementById('resultsScreen').classList.add('hidden');
+        }
+
+        function showRoleSelect() {
+            playSound('click');
+            hideAllScreens();
+            document.getElementById('roleSelectScreen').classList.remove('hidden');
+        }
+
+        function generateCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        async function showHostSetup() {
+            playSound('click');
+            userRole = 'host';
+            currentRoomCode = generateCode();
+            hideAllScreens();
+            document.getElementById('hostLobbyScreen').classList.remove('hidden');
+            document.getElementById('hostRoomCodeDisplay').innerText = currentRoomCode;
+
+            // Pick 45 questions for this room
+            const shuffledQ = [...questionBank].sort(() => Math.random() - 0.5).slice(0, 45);
+
+            // Create Room in Firestore
+            const roomRef = window.fsDoc(window.db, 'artifacts', window.appId, 'public', 'data', 'rooms', currentRoomCode);
+            const initialRoomData = {
+                code: currentRoomCode,
+                status: 'lobby', // 'lobby' | 'playing' | 'finished'
+                currentQuestionIdx: 0,
+                questions: shuffledQ,
+                players: {},
+                createdAt: Date.now()
+            };
+
+            await window.fsSetDoc(roomRef, initialRoomData);
+
+            // Listen to Room updates
+            if (roomUnsubscribe) roomUnsubscribe();
+            roomUnsubscribe = window.fsOnSnapshot(roomRef, (snapshot) => {
+                if (!snapshot.exists()) return;
+                const data = snapshot.data();
+                renderHostLobby(data);
+                if (data.status === 'playing') {
+                    renderHostGame(data);
+                } else if (data.status === 'finished') {
+                    renderResultsScreen(data);
+                }
+            }, (error) => console.error("Room listener error:", error));
+        }
+
+        function renderHostLobby(roomData) {
+            const players = roomData.players || {};
+            const playerKeys = Object.keys(players);
+            document.getElementById('hostPlayerCount').innerText = playerKeys.length;
+
+            const listEl = document.getElementById('hostPlayerList');
+            const startBtn = document.getElementById('startGameBtn');
+
+            if (playerKeys.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs italic">Никто еще не подключился. Назовите код ${currentRoomCode}!</div>`;
+                startBtn.disabled = true;
+            } else {
+                startBtn.disabled = false;
+                listEl.innerHTML = '';
+                playerKeys.forEach((pid, idx) => {
+                    const p = players[pid];
+                    listEl.innerHTML += `
+                        <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center space-x-2 truncate">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs shrink-0">${idx + 1}</span>
+                            <span class="text-xs font-bold text-white truncate">${p.name}</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        async function startHostGame() {
+            playSound('click');
+            const roomRef = window.fsDoc(window.db, 'artifacts', window.appId, 'public', 'data', 'rooms', currentRoomCode);
+            await window.fsUpdateDoc(roomRef, {
+                status: 'playing',
+                currentQuestionIdx: 0,
+                questionStartTime: Date.now()
+            });
+        }
+
+        function showPlayerJoin() {
+            playSound('click');
+            userRole = 'player';
+            hideAllScreens();
+            document.getElementById('playerJoinScreen').classList.remove('hidden');
+        }
+
+        async function submitPlayerJoin() {
+            const codeInput = document.getElementById('joinCodeInput').value.trim();
+            const nameInput = document.getElementById('joinNameInput').value.trim();
+
+            if (!codeInput || codeInput.length !== 6) {
+                alert("Пожалуйста, введите корректный 6-значный код комнаты.");
+                return;
+            }
+            if (!nameInput) {
+                alert("Пожалуйста, введите Ваше имя.");
+                return;
+            }
+
+            playSound('click');
+            currentRoomCode = codeInput;
+            myPlayerName = nameInput;
+            myPlayerId = window.currentUser ? window.currentUser.uid : 'player_' + Math.random().toString(36).substring(2, 9);
+
+            const roomRef = window.fsDoc(window.db, 'artifacts', window.appId, 'public', 'data', 'rooms', currentRoomCode);
+
+            // Join player into room
+            try {
+                await window.fsUpdateDoc(roomRef, {
+                    [`players.${myPlayerId}`]: {
+                        id: myPlayerId,
+                        name: myPlayerName,
+                        score: 0,
+                        correctAnswers: 0,
+                        answeredCurrent: false,
+                        lastAnswerCorrect: null
+                    }
+                });
+
+                hideAllScreens();
+                document.getElementById('playerWaitingScreen').classList.remove('hidden');
+                document.getElementById('playerGreetingText').innerText = `Игрок: ${myPlayerName}`;
+
+                // Listen to Room state for Player
+                if (roomUnsubscribe) roomUnsubscribe();
+                roomUnsubscribe = window.fsOnSnapshot(roomRef, (snapshot) => {
+                    if (!snapshot.exists()) {
+                        alert("Комната не найдена!");
+                        showRoleSelect();
+                        return;
+                    }
+                    const data = snapshot.data();
+                    if (data.status === 'playing') {
+                        renderPlayerGame(data);
+                    } else if (data.status === 'finished') {
+                        renderResultsScreen(data);
+                    }
+                }, (err) => console.error("Player listener err:", err));
+
+            } catch (err) {
+                alert("Не удалось подключиться к комнате. Проверьте код.");
+            }
+        }
+
+        function renderHostGame(data) {
+            hideAllScreens();
+            document.getElementById('hostGameScreen').classList.remove('hidden');
+            document.getElementById('hostGameScreen').classList.add('flex');
+            document.getElementById('hostGameCodeBadge').innerText = `Код: ${data.code}`;
+
+            const qIdx = data.currentQuestionIdx || 0;
+            const q = data.questions[qIdx];
+            document.getElementById('hostQuestionNum').innerText = `ВОПРОС ${qIdx + 1} / ${data.questions.length}`;
+            document.getElementById('hostQuestionText').innerText = q.q;
+
+            // Render options
+            const optsBox = document.getElementById('hostAnswerOptionsDisplay');
+            optsBox.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const isCorrect = i === q.correct;
+                optsBox.innerHTML += `
+                    <div class="p-2.5 rounded-lg border ${isCorrect ? 'bg-emerald-950/60 border-emerald-500/80 text-emerald-300' : 'bg-slate-800/60 border-slate-700/80'} flex items-center justify-between">
+                        <span>${['A','B','C','D'][i]}. ${opt}</span>
+                        ${isCorrect ? '<span class="text-xs bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded">Верный</span>' : ''}
+                    </div>
+                `;
+            });
+
+            // Count answers
+            const players = data.players || {};
+            const playerList = Object.values(players);
+            const answeredCount = playerList.filter(p => p.answeredCurrent).length;
+            document.getElementById('hostAnsweredCounter').innerText = `Ответили: ${answeredCount} из ${playerList.length}`;
+
+            // Leaderboard ranking
+            const sorted = [...playerList].sort((a, b) => b.score - a.score);
+            const leaderBox = document.getElementById('hostLiveLeaderboard');
+            leaderBox.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                leaderBox.innerHTML += `
+                    <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 truncate">
+                            <span class="font-mono text-xs text-slate-400 w-4">#${idx + 1}</span>
+                            <span class="text-xs font-bold text-white truncate">${p.name}</span>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-yellow-400">${p.score} оч.</span>
+                    </div>
+                `;
+            });
+        }
+
+        async function hostNextQuestion() {
+            playSound('click');
+            const roomRef = window.fsDoc(window.db, 'artifacts', window.appId, 'public', 'data', 'rooms', currentRoomCode);
+            
+            // Get current snapshot data
+            const snapshot = await window.fsOnSnapshot; // Trigger update directly
+            // Fetch state or update directly
+            const roomSnap = await new Promise(res => {
+                window.fsOnSnapshot(roomRef, snap => res(snap), { once: true });
+            });
+            
+            if (!roomSnap.exists()) return;
+            const data = roomSnap.data();
+            const nextIdx = data.currentQuestionIdx + 1;
+
+            if (nextIdx >= data.questions.length) {
+                // Finish Game
+                await window.fsUpdateDoc(roomRef, { status: 'finished' });
+            } else {
+                // Reset player answers for next question
+                const updatedPlayers = { ...data.players };
+                Object.keys(updatedPlayers).forEach(pid => {
+                    updatedPlayers[pid].answeredCurrent = false;
+                    updatedPlayers[pid].lastAnswerCorrect = null;
+                });
+
+                await window.fsUpdateDoc(roomRef, {
+                    currentQuestionIdx: nextIdx,
+                    questionStartTime: Date.now(),
+                    players: updatedPlayers
+                });
+            }
+        }
+
+        function renderPlayerGame(data) {
+            hideAllScreens();
+            document.getElementById('playerGameScreen').classList.remove('hidden');
+            document.getElementById('playerGameScreen').classList.add('flex');
+
+            const me = (data.players && data.players[myPlayerId]) || { score: 0, answeredCurrent: false };
+            document.getElementById('playerSelfName').innerText = myPlayerName;
+            document.getElementById('playerSelfScore').innerText = `${me.score} оч.`;
+
+            const qIdx = data.currentQuestionIdx || 0;
+            const q = data.questions[qIdx];
+
+            document.getElementById('playerQuestionNum').innerText = `ВОПРОС ${qIdx + 1} / ${data.questions.length}`;
+            document.getElementById('playerQuestionText').innerText = q.q;
+
+            const grid = document.getElementById('playerAnswersGrid');
+            grid.innerHTML = '';
+
+            const feedbackBox = document.getElementById('playerFeedbackBox');
+
+            if (me.answeredCurrent) {
+                feedbackBox.classList.remove('hidden');
+                if (me.lastAnswerCorrect) {
+                    feedbackBox.className = "card-glass rounded-xl p-4 text-center border-l-4 border-emerald-500 bg-emerald-500/10 neon-glow-green";
+                    document.getElementById('playerFeedbackTitle').className = "font-bold text-sm mb-1 text-emerald-400";
+                    document.getElementById('playerFeedbackTitle').innerText = "✓ Правильный ответ!";
+                } else {
+                    feedbackBox.className = "card-glass rounded-xl p-4 text-center border-l-4 border-rose-500 bg-rose-500/10 neon-glow-red";
+                    document.getElementById('playerFeedbackTitle').className = "font-bold text-sm mb-1 text-rose-400";
+                    document.getElementById('playerFeedbackTitle').innerText = "✕ Неправильный ответ!";
+                }
+                document.getElementById('playerFeedbackDesc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            q.options.forEach((opt, idx) => {
+                const disabled = me.answeredCurrent;
+                grid.innerHTML += `
+                    <button 
+                        ${disabled ? 'disabled' : `onclick="submitPlayerAnswer(${idx})"`}
+                        class="p-4 rounded-xl card-glass border border-slate-700 text-left font-medium text-xs sm:text-sm text-slate-200 
+                        ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-indigo-500 hover:bg-indigo-500/10 active:scale-98 cursor-pointer'} transition flex items-center justify-between">
+                        <span>${opt}</span>
+                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-slate-400 shrink-0">
+                            ${['A', 'B', 'C', 'D'][idx]}
+                        </span>
+                    </button>
+                `;
+            });
+        }
+
+        async function submitPlayerAnswer(chosenIdx) {
+            const roomRef = window.fsDoc(window.db, 'artifacts', window.appId, 'public', 'data', 'rooms', currentRoomCode);
+            
+            // Get current room snapshot
+            const roomSnap = await new Promise(res => {
+                window.fsOnSnapshot(roomRef, snap => res(snap), { once: true });
+            });
+
+            if (!roomSnap.exists()) return;
+            const data = roomSnap.data();
+            const qIdx = data.currentQuestionIdx || 0;
+            const q = data.questions[qIdx];
+            const isCorrect = chosenIdx === q.correct;
+
+            if (isCorrect) playSound('correct');
+            else playSound('wrong');
+
+            const me = data.players[myPlayerId] || { score: 0, correctAnswers: 0 };
+            const pointsGained = isCorrect ? 100 : 0;
+
+            await window.fsUpdateDoc(roomRef, {
+                [`players.${myPlayerId}.score`]: me.score + pointsGained,
+                [`players.${myPlayerId}.correctAnswers`]: me.correctAnswers + (isCorrect ? 1 : 0),
+                [`players.${myPlayerId}.answeredCurrent`]: true,
+                [`players.${myPlayerId}.lastAnswerCorrect`]: isCorrect
+            });
+        }
+
+        function renderResultsScreen(data) {
+            hideAllScreens();
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            const players = Object.values(data.players || {});
+            const sorted = players.sort((a, b) => b.score - a.score);
+
+            if (sorted.length > 0) {
+                document.getElementById('winnerName').innerText = sorted[0].name;
+            } else {
+                document.getElementById('winnerName').innerText = "Нет участников";
+            }
+
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                listEl.innerHTML += `
+                    <div class="flex justify-between items-center p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-xs text-slate-400">#${idx + 1}</span>
+                            <span class="font-bold text-white text-xs sm:text-sm">${p.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-mono font-bold text-yellow-400 text-xs sm:text-sm block">${p.score} оч.</span>
+                            <span class="text-[10px] text-slate-400">${p.correctAnswers} отв.</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
